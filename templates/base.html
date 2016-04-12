@@ -1,0 +1,54 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="chrome=IE7" />
+        <meta name="viewport" content="initial-scale=1.0, width=device-width"/>
+
+        <title>{% block title %}B2B discount module{% endblock title %}</title>
+
+        <link href="{% static 'css/bootstrap.css' %}" rel="stylesheet">
+        <link href="{% static 'css/style.css' %}" rel="stylesheet">
+        {% block extra_head %}{% endblock extra_head %}
+
+    </head>
+    <body>
+     <div class="container">
+       <nav class="navbar navbar-default">
+         <div class="container-fluid">
+           <div class="navbar-header">
+           <a class="navbar-brand" href="{% url 'index' %}">B2B Home</a>
+           </div>
+
+           {% if not user.is_authenticated %}
+           <p class="navbar-text navbar-right">
+             <a href="{% url 'django.contrib.auth.views.login' %}">Login</a>
+           </p>
+           {% else %}
+           <p class="navbar-text navbar-right">Hello, <b>{{ user }}</b>! 
+             <a href="{% url 'django.contrib.auth.views.logout' %}?next=/">Logout</a>
+           </p>
+           {% endif %}
+
+         </div>
+       </nav>
+
+        <div class="page-header">
+          <h1 class="descr">B2B discount module</h1>
+
+        {% block content %}{% endblock content %}
+
+        </div>
+      </div>
+        <script src="{% static 'js/bootstrap.min.js' %}"></script>
+        <script src="{% static 'js/jquery-1.12.1.min.js' %}"></script>
+        <script src="{% static 'js/jquery.form.min.js' %}"></script>
+        <script src="{% static 'js/jquery-ui.min.js' %}"></script>
+        <script src="{% static 'js/underscore-min.js' %}"></script>
+        <script src="{% static 'js/script.js' %}"></script>
+
+        {% block add_js %}{% endblock add_js %}
+    </body>
+</html>
+
