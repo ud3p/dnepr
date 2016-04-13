@@ -1,8 +1,8 @@
-/*
+
 body {
   background-image: url("../images/bg.png");
 }
-*/
+
 #ajax_loader{
   visibility: hidden
 }

@@ -1,12 +1,11 @@
 from django.db import models
 from django.contrib.auth.models import User
-import pycountry
-import csv
+import json
 
+'''
 import json
 import bs4
 import requests
-
 with open('data.txt', 'w') as outfile:
     #json.dump(data, outfile)
 
@@ -21,25 +20,35 @@ with open('data.txt', 'w') as outfile:
         ).find('table', {'class': 'wikitable sortable'}).find_all('tr')[1:]
     ],
     outfile,
-    indent=4,
-    ensure_ascii=False
+    indent=2,
+    encoding="utf-8"
     
     )
-
+'''
 
 class Country(models.Model):
-    with open('b2b_discount_module/country.csv') as county:
-        fp_csv = csv.reader(county)
-        fp_csv.next()
-        #for i in fp_csv:
-            #print i[0],i[3]
 
-    country_iso = models.CharField(max_length=3, choices=[(i, k) for i,k in enumerate(range(5))])
-    country_name = models.CharField(max_length=255)
-    #for i in pycountry.countries:
-        #print i
+    fp_json = json.load(open('b2b_discount_module/data.json'))
+
+    country_id = models.PositiveIntegerField(
+                                   max_length=255,
+                                   choices=[
+                                           (ident, country['name'])
+                                           for ident, country in enumerate(fp_json)
+                                        ]
+                                   )
+
+    country_iso = models.CharField(max_length=3, help_text="This field fill automatically!", blank=True, null=True)
+
+    country_disp = models.CharField("Country Name", max_length=255, help_text="This field fill automatically!", blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        self.country_iso = self.fp_json[self.country_id]['alpha_3']
+        self.country_disp = self.fp_json[self.country_id]['name']
+        super(Country, self).save(*args, **kwargs)
+    
     def __unicode__(self):
-        return self.country_name
+        return '%s' % self.fp_json[int(self.country_id)]['name']
 
 class Company(models.Model):
     company_name = models.CharField(max_length=255)
