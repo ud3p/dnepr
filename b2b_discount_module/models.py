@@ -21,7 +21,8 @@ with open('data.txt', 'w') as outfile:
         ).find('table', {'class': 'wikitable sortable'}).find_all('tr')[1:]
     ],
     outfile,
-    indent=4
+    indent=4,
+    ensure_ascii=False
     
     )
 
