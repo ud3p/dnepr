@@ -57,6 +57,8 @@ class Company(models.Model):
     def __unicode__(self):
         return self.company_name
 
+
+
 class Agreement(models.Model):
     start_date = models.DateField(blank=True, null=True)
     end_date = models.DateField(blank=True, null=True)
@@ -65,10 +67,18 @@ class Agreement(models.Model):
     export_value = models.PositiveIntegerField()
     import_value = models.PositiveIntegerField()
 
+
     def __unicode__(self):
-        return 'Agreement %s' % self.company
+        return 'Agreement to %s' % self.company
 
 
+class Period(models.Model):
+    period_start_date = models.DateField()
+    period_end_date = models.DateField()
+    is_active = models.BooleanField(default=True)
+    choose_period = models.ForeignKey(Agreement)
+    print 
 
-    
+    def __unicode__(self):
+        return '%s / %s' % (self.period_start_date, self.period_end_date)
 
