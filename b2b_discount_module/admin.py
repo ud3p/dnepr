@@ -3,7 +3,7 @@ from b2b_discount_module.models import Agreement, Company, Country, Period
 
 class PeriodInline(admin.TabularInline):
     model = Period
-    extra = 0
+    extra = 1
 
 
 class AgreementAdmin(admin.ModelAdmin):
@@ -22,9 +22,10 @@ class CompanyAdmin(admin.ModelAdmin):
 class CountryAdmin(admin.ModelAdmin):
     list_settings_country = ['country_disp', 'country_iso']
     list_display = list_settings_country
-    readonly_fields = list_settings_country
+    readonly_fields = ['country_iso']
     list_filter = list_settings_country
     search_fields = list_settings_country
+    exclude = ['country_disp']
 
 class PeriodAdmin(admin.ModelAdmin):
     list_settings_period = ['period_start_date', 'period_end_date', 'is_active']

@@ -1,6 +1,10 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 import json
+import datetime
+from django.db.models.signals import pre_save
+from django.dispatch import receiver
 
 '''
 import json
@@ -30,7 +34,7 @@ class Country(models.Model):
 
     fp_json = json.load(open('b2b_discount_module/data.json'))
 
-    country_id = models.PositiveIntegerField(
+    country_id = models.PositiveIntegerField("Country Name", 
                                    max_length=255,
                                    choices=[
                                            (ident, country['name'])
@@ -67,6 +71,13 @@ class Agreement(models.Model):
     export_value = models.PositiveIntegerField()
     import_value = models.PositiveIntegerField()
 
+    def clean(self):
+        if self.start_date > self.end_date:
+            raise ValidationError('Start date cannot precede end date')
+
+
+    def save(self, *args, **kwargs):
+        super(Agreement, self).save(*args, **kwargs)
 
     def __unicode__(self):
         return 'Agreement to %s' % self.company
@@ -77,7 +88,44 @@ class Period(models.Model):
     period_end_date = models.DateField()
     is_active = models.BooleanField(default=True)
     choose_period = models.ForeignKey(Agreement)
-    print 
+
+    def clean(self):
+        cleaned_data = super(Period, self).clean()
+        cc_myself = cleaned_data.get("period_start_date")
+        print cc_myself
+        try:
+            l = str(Period.objects.last()).split(' / ')
+            print l
+            temp_date = datetime.datetime.strptime(l[1], "%Y-%m-%d").date()
+            print self.period_start_date, Period.objects.count(), Period.objects.values('choose_period_id')[0]
+            print 'temp date', temp_date
+
+            dict_id = Period.objects.values('choose_period_id')[0]
+            agree = Agreement.objects.get(id=dict_id['choose_period_id'])
+            print dict_id, agree, agree.start_date
+
+            if agree.start_date > self.period_start_date:
+                raise ValidationError('Period start date cannot precede Agreement start date')
+
+            if self.period_start_date > self.period_end_date:
+                raise ValidationError('Period start date cannot precede period end date')
+            '''
+            if temp_date > self.period_start_date and Period.objects.count() < 100:
+                print 'False'
+                raise ValidationError('Periods should not overlap')
+
+            if Period.objects.count() >= 1 and self.period_start_date < temp_date:
+                print temp_date
+                raise ValidationError('Periods should not overlap')
+            '''
+        except IndexError:
+            pass
+
+
+    def save(self, *args, **kwargs):
+        #print self.period_start_date, Period.objects.count(), Period.objects.values()
+        super(Period, self).save(*args, **kwargs)
+
 
     def __unicode__(self):
         return '%s / %s' % (self.period_start_date, self.period_end_date)
